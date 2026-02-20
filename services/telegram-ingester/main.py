@@ -16,7 +16,7 @@ from telethon import TelegramClient, events
 from telethon.errors import FloodWaitError
 
 from config import settings
-from db import get_active_telegram_sources, insert_message
+from db import get_active_telegram_sources, insert_message, update_telegram_chat_id
 from pubsub import publish_raw_message
 
 logging.basicConfig(
@@ -44,9 +44,17 @@ async def run_ingester() -> None:
                 log.info("Sources found, starting ingester.")
                 break
 
-    source_map: dict[str, int] = {s["identifier"]: s["id"] for s in sources}
-    channels = list(source_map.keys())
-    log.info("Monitoring %d channel(s): %s", len(channels), channels)
+    source_map: dict[str, int] = {}
+    channels: list[str | int] = []
+    for s in sources:
+        source_map[s["identifier"]] = s["id"]
+        channels.append(s["identifier"])
+        if s.get("telegram_chat_id") is not None:
+            cid = s["telegram_chat_id"]
+            source_map[str(cid)] = s["id"]
+            if str(cid) != s["identifier"]:
+                channels.append(cid)
+    log.info("Monitoring %d channel(s): %s", len(sources), [s["identifier"] for s in sources])
 
     client = TelegramClient(
         settings.telegram_session_path,
@@ -63,6 +71,12 @@ async def run_ingester() -> None:
 
         source_id = source_map.get(channel_username)
         if source_id is None:
+            log.warning(
+                "Skipping message from chat %s (no matching source). "
+                "Add a source with identifier=%r for private channels.",
+                channel_username,
+                channel_username,
+            )
             return
 
         text = event.raw_text or ""
@@ -90,6 +104,7 @@ async def run_ingester() -> None:
             raw_json["db_id"] = msg_id
             await publish_raw_message(raw_json)
             log.info("Ingested msg %d from @%s", msg_id, channel_username)
+            await update_telegram_chat_id(source_id, event.chat_id)
 
     client.add_event_handler(handler, events.NewMessage(chats=channels))
 

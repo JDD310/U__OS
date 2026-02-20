@@ -27,10 +27,20 @@ async def get_pool() -> asyncpg.Pool:
 async def get_active_telegram_sources() -> list[dict]:
     pool = await get_pool()
     rows = await pool.fetch(
-        "SELECT id, identifier, display_name FROM sources "
+        "SELECT id, identifier, display_name, telegram_chat_id FROM sources "
         "WHERE platform = 'telegram' AND is_active = true"
     )
     return [dict(r) for r in rows]
+
+
+async def update_telegram_chat_id(source_id: int, chat_id: int) -> None:
+    """Persist chat ID for a source so messages can be matched when username is unavailable."""
+    pool = await get_pool()
+    await pool.execute(
+        "UPDATE sources SET telegram_chat_id = $1 WHERE id = $2 AND telegram_chat_id IS NULL",
+        chat_id,
+        source_id,
+    )
 
 
 async def insert_message(
