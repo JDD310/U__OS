@@ -435,3 +435,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Local Deploy Files
+deploy/
+
