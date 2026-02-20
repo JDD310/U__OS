@@ -1,0 +1,72 @@
+# OSINT Monitor — Source Registry Seed Config
+# Edit this file to add/remove conflicts and sources.
+# Run `docker compose run --rm telegram-ingester python /scripts/seed_db.py` to apply.
+
+conflicts:
+  - name: "US/Israel-Iran"
+    short_code: "israel-iran"
+    involved_countries: ["IL", "IR", "LB", "PS", "SY", "YE", "IQ"]
+    map_center_lat: 32.0
+    map_center_lon: 35.0
+    map_zoom_level: 5
+    color_scheme:
+      allies:
+        countries: ["IL"]
+        color: "#4CAF50"
+      adversaries:
+        countries: ["IR", "SY"]
+        color: "#F44336"
+      involved:
+        countries: ["LB", "IQ", "YE", "PS"]
+        color: "#FF9800"
+
+  - name: "Russia-Ukraine"
+    short_code: "russia-ukraine"
+    involved_countries: ["UA", "RU", "BY"]
+    map_center_lat: 49.0
+    map_center_lon: 32.0
+    map_zoom_level: 5
+    color_scheme:
+      allies:
+        countries: ["UA"]
+        color: "#4CAF50"
+      adversaries:
+        countries: ["RU", "BY"]
+        color: "#F44336"
+
+  - name: "Sudan Civil War"
+    short_code: "sudan"
+    involved_countries: ["SD"]
+    map_center_lat: 15.5
+    map_center_lon: 32.5
+    map_zoom_level: 5
+    color_scheme:
+      involved:
+        countries: ["SD"]
+        color: "#FF9800"
+
+sources:
+  telegram:
+    []
+    # Add channels here. Example:
+    # - identifier: intel_slava            # Telegram channel @username (no @)
+    #   display_name: "Intel Slava Z"
+    #   default_conflict: "russia-ukraine"
+    #   reliability_tier: "medium"         # high | medium | low
+    #
+    # - identifier: intelschizo
+    #   display_name: "Intel Schizo"
+    #   default_conflict: "israel-iran"
+    #   reliability_tier: "medium"
+
+  x:
+    []
+    # Add X/Twitter accounts here. Example:
+    # - identifier: OSINTdefender          # X handle (no @)
+    #   display_name: "OSINT Defender"
+    #   reliability_tier: "high"
+    #
+    # - identifier: WarMonitor_
+    #   display_name: "War Monitor"
+    #   default_conflict: "russia-ukraine"
+    #   reliability_tier: "medium"

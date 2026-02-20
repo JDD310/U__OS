@@ -1,0 +1,5 @@
+twscrape==0.15.2
+asyncpg==0.30.0
+redis[asyncio]==5.2.1
+pydantic-settings==2.7.0
+pyyaml==6.0.2

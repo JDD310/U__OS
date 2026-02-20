@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./services/db/migrations:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: osint_monitor
+      POSTGRES_USER: osint
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osint -d osint_monitor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  telegram-ingester:
+    build: ./services/telegram-ingester
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
+      REDIS_URL: redis://redis:6379
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH}
+      TELEGRAM_SESSION_PATH: /app/sessions/osint_monitor
+    volumes:
+      - telegram_sessions:/app/sessions
+      - ./sources.yml:/app/sources.yml:ro
+      - ./scripts:/scripts:ro
+    restart: unless-stopped
+
+  x-ingester:
+    build: ./services/x-ingester
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
+      REDIS_URL: redis://redis:6379
+      X_POLL_INTERVAL: "300"
+      X_ACCOUNTS_DB_PATH: /app/accounts/accounts.db
+    volumes:
+      - x_accounts:/app/accounts
+      - ./sources.yml:/app/sources.yml:ro
+      - ./scripts:/scripts:ro
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  telegram_sessions:
+  x_accounts:
