@@ -1,0 +1,5 @@
+spacy==3.8.4
+asyncpg==0.30.0
+redis[asyncio]==5.2.1
+httpx==0.28.1
+pydantic-settings==2.7.0

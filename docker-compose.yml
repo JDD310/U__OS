@@ -59,6 +59,24 @@ services:
       - ./scripts:/scripts:ro
     restart: unless-stopped
 
+  processor:
+    build: ./services/processor
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
+      REDIS_URL: redis://redis:6379
+      NOMINATIM_URL: https://nominatim.openstreetmap.org
+      CLASSIFICATION_THRESHOLD: "0.8"
+      BATCH_SIZE: "50"
+      BACKLOG_POLL_INTERVAL: "30"
+    volumes:
+      - ./scripts:/scripts:ro
+    restart: unless-stopped
+
 volumes:
   pgdata:
   telegram_sessions:
