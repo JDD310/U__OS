@@ -77,6 +77,20 @@ services:
       - ./scripts:/scripts:ro
     restart: unless-stopped
 
+  api:
+    build: ./services/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
 volumes:
   pgdata:
   telegram_sessions:
