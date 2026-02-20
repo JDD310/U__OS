@@ -1,0 +1,57 @@
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+:root {
+  --bg-primary: #0a0e14;
+  --bg-secondary: #111820;
+  --bg-tertiary: #1a2130;
+  --bg-hover: #222d3d;
+  --text-primary: #c5c8c6;
+  --text-secondary: #8b949e;
+  --text-accent: #58a6ff;
+  --border: #21262d;
+  --success: #4caf50;
+  --danger: #f44336;
+  --warning: #ff9800;
+  --sidebar-width: 260px;
+  --header-height: 48px;
+  --feed-height: 240px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
