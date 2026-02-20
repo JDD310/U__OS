@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from datetime import datetime
@@ -24,7 +25,21 @@ async def _init_connection(conn):
 async def get_pool() -> asyncpg.Pool:
     global _pool
     if _pool is None:
-        _pool = await asyncpg.create_pool(settings.db_url, init=_init_connection)
+        for attempt in range(1, 11):
+            try:
+                _pool = await asyncpg.create_pool(
+                    settings.db_url, init=_init_connection
+                )
+                break
+            except (OSError, asyncpg.PostgresError) as e:
+                if attempt == 10:
+                    raise
+                wait = min(attempt * 2, 30)
+                log.warning(
+                    "DB connection attempt %d failed: %s. Retrying in %ds.",
+                    attempt, e, wait,
+                )
+                await asyncio.sleep(wait)
     return _pool
 
 
