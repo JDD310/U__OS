@@ -44,6 +44,21 @@ export async function fetchSources(activeOnly = true) {
   return request('/sources', { active_only: activeOnly });
 }
 
+export async function fetchUnclassifiedMessages({ limit = 50, offset = 0 } = {}) {
+  return request('/messages/unclassified', { limit, offset });
+}
+
+export async function classifyMessage(messageId, conflictId, eventType) {
+  const url = new URL(`${API_BASE}/messages/${messageId}/classify`, window.location.origin);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ conflict_id: conflictId, event_type: eventType }),
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
 export async function fetchHealth() {
   return request('/health');
 }

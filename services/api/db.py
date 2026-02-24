@@ -98,8 +98,14 @@ async def get_events(
     query = """
         SELECT e.id, e.message_id, e.conflict_id, e.event_type,
                e.latitude, e.longitude, e.location_name,
-               e.confidence, e.timestamp, e.created_at
+               e.confidence, e.timestamp, e.created_at,
+               m.text,
+               s.display_name AS source_display_name,
+               s.identifier AS source_identifier,
+               s.platform AS source_platform
         FROM events e
+        JOIN messages m ON m.id = e.message_id
+        JOIN sources s ON s.id = m.source_id
         WHERE e.conflict_id = $1
     """
     params: list = [conflict_id]
@@ -220,6 +226,73 @@ async def get_message(message_id: int) -> dict | None:
         message_id,
     )
     return dict(row) if row else None
+
+
+# ---------------------------------------------------------------------------
+# Unclassified messages
+# ---------------------------------------------------------------------------
+
+async def get_unclassified_messages(
+    limit: int = 50,
+    offset: int = 0,
+) -> list[dict]:
+    pool = await get_pool()
+    rows = await pool.fetch(
+        """
+        SELECT m.id, m.source_id, m.platform, m.external_id,
+               m.text, m.has_media, m.timestamp, m.ingested_at,
+               s.identifier AS source_identifier,
+               s.display_name AS source_display_name,
+               s.reliability_tier
+        FROM messages m
+        JOIN sources s ON s.id = m.source_id
+        WHERE m.processed = true
+          AND NOT EXISTS (SELECT 1 FROM events e WHERE e.message_id = m.id)
+        ORDER BY m.timestamp DESC
+        LIMIT $1 OFFSET $2
+        """,
+        limit,
+        offset,
+    )
+    return [dict(r) for r in rows]
+
+
+async def count_unclassified_messages() -> int:
+    pool = await get_pool()
+    return await pool.fetchval(
+        """
+        SELECT count(*) FROM messages m
+        WHERE m.processed = true
+          AND NOT EXISTS (SELECT 1 FROM events e WHERE e.message_id = m.id)
+        """
+    )
+
+
+async def manual_classify_message(
+    message_id: int,
+    conflict_id: int,
+    event_type: str,
+) -> int | None:
+    pool = await get_pool()
+    msg = await pool.fetchrow(
+        "SELECT timestamp FROM messages WHERE id = $1", message_id
+    )
+    if msg is None:
+        return None
+    row = await pool.fetchrow(
+        """
+        INSERT INTO events (message_id, conflict_id, event_type,
+                            latitude, longitude, location_name,
+                            confidence, timestamp)
+        VALUES ($1, $2, $3, 0.0, 0.0, '', 1.0, $4)
+        RETURNING id
+        """,
+        message_id,
+        conflict_id,
+        event_type,
+        msg["timestamp"],
+    )
+    return row["id"] if row else None
 
 
 # ---------------------------------------------------------------------------

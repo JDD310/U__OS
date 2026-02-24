@@ -198,6 +198,39 @@
   color: var(--text-secondary);
 }
 
+.feed-tab {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.feed-tab:hover {
+  color: var(--text-primary);
+}
+
+.feed-tab.active {
+  color: var(--text-accent);
+  border-bottom-color: var(--text-accent);
+}
+
+.feed-tab-count {
+  font-size: 9px;
+  background: var(--danger);
+  color: #fff;
+  padding: 0 5px;
+  border-radius: 8px;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
 .feed-pulse {
   width: 6px;
   height: 6px;
@@ -220,12 +253,17 @@
 
 .feed-item {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
   padding: 6px 12px;
   cursor: pointer;
   border-left: 3px solid transparent;
   transition: background 0.1s ease;
+}
+
+.feed-item-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .feed-item:hover {
@@ -288,6 +326,83 @@
   color: var(--text-secondary);
   font-size: 11px;
   text-align: center;
+}
+
+.feed-platform-badge {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.feed-source {
+  font-size: 10px;
+  color: var(--text-accent);
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.feed-expanded {
+  margin-top: 6px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.feed-full-text {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-bottom: 6px;
+}
+
+.feed-expanded-location {
+  font-size: 10px;
+  color: var(--text-accent);
+  margin-bottom: 8px;
+}
+
+.feed-classify-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.feed-classify-form select {
+  font-size: 11px;
+  font-family: inherit;
+  padding: 3px 6px;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.classify-btn {
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  background: var(--text-accent);
+  color: #000;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.classify-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* Map popup styles */

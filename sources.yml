@@ -45,28 +45,142 @@ conflicts:
         countries: ["SD"]
         color: "#FF9800"
 
+  - name: "Taiwan Strait"
+    short_code: "taiwan-china"
+    involved_countries: ["TW", "CN", "JP", "PH"]
+    map_center_lat: 24.0
+    map_center_lon: 121.0
+    map_zoom_level: 5
+    color_scheme:
+      allies:
+        countries: ["TW"]
+        color: "#4CAF50"
+      adversaries:
+        countries: ["CN"]
+        color: "#F44336"
+      involved:
+        countries: ["JP", "PH"]
+        color: "#FF9800"
+
+  - name: "Korean Peninsula"
+    short_code: "korean-peninsula"
+    involved_countries: ["KR", "KP", "JP"]
+    map_center_lat: 38.0
+    map_center_lon: 127.0
+    map_zoom_level: 6
+    color_scheme:
+      allies:
+        countries: ["KR"]
+        color: "#4CAF50"
+      adversaries:
+        countries: ["KP"]
+        color: "#F44336"
+      involved:
+        countries: ["JP"]
+        color: "#FF9800"
+
+  - name: "US-Venezuela"
+    short_code: "venezuela"
+    involved_countries: ["VE", "CO", "GY", "BR"]
+    map_center_lat: 7.0
+    map_center_lon: -66.0
+    map_zoom_level: 5
+    color_scheme:
+      adversaries:
+        countries: ["VE"]
+        color: "#F44336"
+      involved:
+        countries: ["CO", "GY", "BR"]
+        color: "#FF9800"
+
+  - name: "US-Greenland"
+    short_code: "greenland"
+    involved_countries: ["GL", "DK"]
+    map_center_lat: 72.0
+    map_center_lon: -40.0
+    map_zoom_level: 3
+    color_scheme:
+      allies:
+        countries: ["DK"]
+        color: "#4CAF50"
+      involved:
+        countries: ["GL"]
+        color: "#FF9800"
+
+  - name: "South China Sea"
+    short_code: "south-china-sea"
+    involved_countries: ["CN", "PH", "VN", "TW", "MY"]
+    map_center_lat: 12.0
+    map_center_lon: 114.0
+    map_zoom_level: 5
+    color_scheme:
+      allies:
+        countries: ["PH", "VN"]
+        color: "#4CAF50"
+      adversaries:
+        countries: ["CN"]
+        color: "#F44336"
+      involved:
+        countries: ["MY", "TW"]
+        color: "#FF9800"
+
+  - name: "Sahel Crisis"
+    short_code: "sahel"
+    involved_countries: ["ML", "NE", "BF", "TD", "NG"]
+    map_center_lat: 14.0
+    map_center_lon: 2.0
+    map_zoom_level: 5
+    color_scheme:
+      involved:
+        countries: ["ML", "NE", "BF", "TD", "NG"]
+        color: "#FF9800"
+
+  - name: "Somalia"
+    short_code: "somalia"
+    involved_countries: ["SO", "ET", "KE", "DJ"]
+    map_center_lat: 5.0
+    map_center_lon: 46.0
+    map_zoom_level: 5
+    color_scheme:
+      involved:
+        countries: ["SO", "ET", "KE", "DJ"]
+        color: "#FF9800"
+
+  - name: "Myanmar Civil War"
+    short_code: "myanmar"
+    involved_countries: ["MM", "TH", "CN", "IN"]
+    map_center_lat: 19.0
+    map_center_lon: 96.0
+    map_zoom_level: 5
+    color_scheme:
+      involved:
+        countries: ["MM", "TH"]
+        color: "#FF9800"
+
 sources:
   telegram:
-    []
-    # Add channels here. Example:
-    # - identifier: intel_slava            # Telegram channel @username (no @)
-    #   display_name: "Intel Slava Z"
-    #   default_conflict: "russia-ukraine"
-    #   reliability_tier: "medium"         # high | medium | low
-    #
-    # - identifier: intelschizo
-    #   display_name: "Intel Schizo"
-    #   default_conflict: "israel-iran"
-    #   reliability_tier: "medium"
+    - identifier: BellumActaNews
+      display_name: "Bellum Acta News"
+      reliability_tier: "medium"
 
-  x:
-    []
-    # Add X/Twitter accounts here. Example:
-    # - identifier: OSINTdefender          # X handle (no @)
-    #   display_name: "OSINT Defender"
-    #   reliability_tier: "high"
-    #
-    # - identifier: WarMonitor_
-    #   display_name: "War Monitor"
-    #   default_conflict: "russia-ukraine"
-    #   reliability_tier: "medium"
+    - identifier: tabzlive
+      display_name: "Tabz Live"
+      reliability_tier: "medium"
+
+    - identifier: rnintel
+      display_name: "RN Intel"
+      reliability_tier: "medium"
+
+    - identifier: intelslava
+      display_name: "Intel Slava"
+      reliability_tier: "medium"
+
+    - identifier: GeoPWatch
+      display_name: "Geopolitical Watch"
+      reliability_tier: "high"
+
+    - identifier : nothingeverhappenscorner
+      display_name: "Nothing Ever Happens Corner"
+      reliability_tier: "high"
+
+  x: []

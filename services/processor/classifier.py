@@ -63,12 +63,12 @@ SATIRE_STRUCTURAL = {
 }
 
 # Pre-compile a single pattern per category for fast scanning
-_WORD_BOUNDARY = r"(?i)\b{}\b"
+_WORD_BOUNDARY = r"\b{}\b"
 
 
 def _compile_set(terms: set[str]) -> re.Pattern:
     escaped = [re.escape(t) for t in sorted(terms, key=len, reverse=True)]
-    return re.compile("|".join(_WORD_BOUNDARY.format(e) for e in escaped))
+    return re.compile("|".join(_WORD_BOUNDARY.format(e) for e in escaped), re.IGNORECASE)
 
 
 _RE_GEO_HIGH = _compile_set(GEOPOLITICAL_HIGH)

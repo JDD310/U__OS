@@ -1,4 +1,4 @@
-spacy==3.8.4
+spacy==3.8.11
 asyncpg==0.30.0
 redis[asyncio]==5.2.1
 httpx==0.28.1

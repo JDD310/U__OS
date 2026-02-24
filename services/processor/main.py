@@ -46,6 +46,7 @@ async def process_message(msg: dict, conflict_map: dict[str, int]) -> None:
     source_filter_rules = msg.get("content_filter_rules") or {}
     default_conflict_id = msg.get("default_conflict_id")
     platform = msg.get("platform", "")
+    source_identifier = msg.get("source_identifier", "")
     timestamp = msg.get("timestamp")
 
     # ---- Step 1: Classify ------------------------------------------------
@@ -114,6 +115,8 @@ async def process_message(msg: dict, conflict_map: dict[str, int]) -> None:
                         "location": geo.name,
                         "text": text[:500],
                         "timestamp": timestamp,
+                        "source_identifier": source_identifier,
+                        "source_platform": platform,
                     }
                     await publish_processed_event(payload)
                     log.info(
@@ -146,6 +149,8 @@ async def process_message(msg: dict, conflict_map: dict[str, int]) -> None:
                     "location": None,
                     "text": text[:500],
                     "timestamp": timestamp,
+                    "source_identifier": source_identifier,
+                    "source_platform": platform,
                 }
                 await publish_processed_event(payload)
                 log.info(

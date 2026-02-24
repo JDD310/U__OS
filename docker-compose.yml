@@ -1,9 +1,21 @@
+# OSINT Monitor — Single-Host Production Deployment
+# All services on one machine behind a Caddy reverse proxy with automatic HTTPS.
+#
+# Prerequisites:
+#   1. cp .env.example .env && edit .env
+#   2. Telegram session:  docker compose run --rm -it telegram-ingester python setup_session.py
+#   3. X accounts:        docker compose run --rm -it x-ingester python -m twscrape add_accounts
+#   4. Seed database:     docker compose run --rm telegram-ingester python /scripts/seed_db.py
+#   5. Start:             docker compose up -d
+
 services:
+  # ── Data Stores ────────────────────────────────────────────────────────────
+
   postgres:
     image: postgres:16-alpine
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./services/db/migrations:/docker-entrypoint-initdb.d
+      - ./services/db/migrations:/docker-entrypoint-initdb.d:ro
     environment:
       POSTGRES_DB: osint_monitor
       POSTGRES_USER: osint
@@ -13,14 +25,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  # ── Ingesters ──────────────────────────────────────────────────────────────
 
   telegram-ingester:
     build: ./services/telegram-ingester
@@ -31,7 +48,7 @@ services:
         condition: service_healthy
     environment:
       DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       TELEGRAM_API_ID: ${TELEGRAM_API_ID}
       TELEGRAM_API_HASH: ${TELEGRAM_API_HASH}
       TELEGRAM_SESSION_PATH: /app/sessions/osint_monitor
@@ -50,7 +67,7 @@ services:
         condition: service_healthy
     environment:
       DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       X_POLL_INTERVAL: "300"
       X_ACCOUNTS_DB_PATH: /app/accounts/accounts.db
     volumes:
@@ -58,6 +75,8 @@ services:
       - ./sources.yml:/app/sources.yml:ro
       - ./scripts:/scripts:ro
     restart: unless-stopped
+
+  # ── Processor ──────────────────────────────────────────────────────────────
 
   processor:
     build: ./services/processor
@@ -68,7 +87,7 @@ services:
         condition: service_healthy
     environment:
       DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       NOMINATIM_URL: https://nominatim.openstreetmap.org
       CLASSIFICATION_THRESHOLD: "0.8"
       BATCH_SIZE: "50"
@@ -76,6 +95,8 @@ services:
     volumes:
       - ./scripts:/scripts:ro
     restart: unless-stopped
+
+  # ── API ────────────────────────────────────────────────────────────────────
 
   api:
     build: ./services/api
@@ -86,24 +107,26 @@ services:
         condition: service_healthy
     environment:
       DB_URL: postgresql://osint:${DB_PASSWORD}@postgres:5432/osint_monitor
-      REDIS_URL: redis://redis:6379
-    ports:
-      - "8080:8080"
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    expose:
+      - "8080"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://127.0.0.1:8080/health'); exit(0 if 200<=r.status<300 else 1)"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 5s
+      start_period: 15s
     restart: unless-stopped
+
+  # ── Frontend ───────────────────────────────────────────────────────────────
 
   frontend:
     build: ./services/frontend
     depends_on:
       api:
         condition: service_healthy
-    ports:
-      - "3000:80"
+    expose:
+      - "80"
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:80/ || exit 1"]
       interval: 10s
@@ -112,7 +135,25 @@ services:
       start_period: 5s
     restart: unless-stopped
 
+  # ── Reverse Proxy ──────────────────────────────────────────────────────────
+
+  caddy:
+    image: caddy:2-alpine
+    depends_on:
+      frontend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+
 volumes:
   pgdata:
   telegram_sessions:
   x_accounts:
+  caddy_data:
+  caddy_config:

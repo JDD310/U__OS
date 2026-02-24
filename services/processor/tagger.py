@@ -48,6 +48,81 @@ CONFLICT_TERMS: dict[str, set[str]] = {
         "Port Sudan", "Kassala", "Wad Madani",
         "Janjaweed",
     },
+    "taiwan-china": {
+        "Taiwan", "Taipei", "Kaohsiung", "Taiwan Strait",
+        "China", "PLA", "PLAN", "PLAAF", "PRC", "Beijing",
+        "Xi Jinping", "CCP",
+        "TSMC", "semiconductor",
+        "Kinmen", "Matsu", "Penghu",
+        "ADIZ", "median line", "First Island Chain",
+        "anti-secession", "reunification", "One China",
+        "Tainan", "Hsinchu", "Pingtung",
+    },
+    "korean-peninsula": {
+        "North Korea", "South Korea", "DPRK", "ROK",
+        "Pyongyang", "Seoul", "Kim Jong Un", "Kim Jong-un",
+        "DMZ", "demilitarized zone", "38th parallel",
+        "ICBM", "Hwasong", "KPA", "USFK",
+        "Yongbyon", "nuclear test", "missile test",
+        "Panmunjom", "Kaesong", "Incheon",
+        "Yoon Suk Yeol",
+    },
+    "venezuela": {
+        "Venezuela", "Caracas", "Maduro",
+        "PDVSA", "Citgo", "FANB",
+        "Machado", "Gonzalez Urrutia",
+        "Essequibo", "Guyana",
+        "Maracaibo", "Barquisimeto",
+        "SEBIN", "colectivos",
+        "Bolivarian", "Chavismo",
+    },
+    "greenland": {
+        "Greenland", "Nuuk", "Thule", "Pituffik",
+        "Denmark", "Copenhagen",
+        "Arctic", "rare earth",
+        "Greenlandic", "Inuit",
+        "Arctic sovereignty",
+        "Mette Frederiksen", "Mute Egede",
+    },
+    "south-china-sea": {
+        "South China Sea", "Spratly", "Paracel",
+        "Scarborough Shoal", "Second Thomas Shoal",
+        "nine-dash line", "UNCLOS",
+        "Philippines", "Manila", "Marcos",
+        "Vietnam", "Hanoi",
+        "Mischief Reef", "Fiery Cross",
+        "Subi Reef", "Woody Island",
+        "FONOP", "freedom of navigation",
+        "maritime militia",
+        "Ayungin", "Sierra Madre",
+    },
+    "sahel": {
+        "Sahel", "Mali", "Bamako", "Niger", "Niamey",
+        "Burkina Faso", "Ouagadougou",
+        "JNIM", "ISGS", "ISWAP",
+        "Africa Corps",
+        "ECOWAS", "AES",
+        "Azawad", "Tuareg",
+        "Timbuktu", "Gao", "Menaka",
+        "MINUSMA", "Barkhane",
+    },
+    "somalia": {
+        "Somalia", "Mogadishu", "Somaliland", "Hargeisa",
+        "Al-Shabaab", "al-Shabaab",
+        "AFRICOM", "AMISOM", "ATMIS",
+        "Puntland", "Jubaland",
+        "Baidoa", "Kismayo", "Beledweyne",
+        "Horn of Africa",
+    },
+    "myanmar": {
+        "Myanmar", "Burma", "Naypyidaw", "Yangon", "Rangoon",
+        "Tatmadaw", "Min Aung Hlaing",
+        "NUG", "People's Defense Force",
+        "Rohingya", "Rakhine",
+        "Arakan Army", "KIA", "KNLA", "KNU",
+        "Mandalay", "Sagaing", "Chin",
+        "Aung San Suu Kyi",
+    },
 }
 
 # Pre-compile per-conflict patterns
@@ -55,7 +130,8 @@ _CONFLICT_PATTERNS: dict[str, re.Pattern] = {}
 for _code, _terms in CONFLICT_TERMS.items():
     _escaped = [re.escape(t) for t in sorted(_terms, key=len, reverse=True)]
     _CONFLICT_PATTERNS[_code] = re.compile(
-        "|".join(rf"(?i)\b{e}\b" for e in _escaped)
+        "|".join(rf"\b{e}\b" for e in _escaped),
+        re.IGNORECASE,
     )
 
 
@@ -125,5 +201,13 @@ def get_region_bias(short_code: str) -> str | None:
         "israel-iran": "Middle East",
         "russia-ukraine": "Eastern Europe",
         "sudan": "Sudan",
+        "taiwan-china": "East Asia",
+        "korean-peninsula": "Korean Peninsula",
+        "venezuela": "South America",
+        "greenland": "Greenland",
+        "south-china-sea": "Southeast Asia",
+        "sahel": "West Africa",
+        "somalia": "East Africa",
+        "myanmar": "Southeast Asia",
     }
     return REGION_BIAS.get(short_code)

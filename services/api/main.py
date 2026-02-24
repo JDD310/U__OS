@@ -202,6 +202,30 @@ async def get_message(message_id: int):
     return msg
 
 
+@app.get("/messages/unclassified")
+async def list_unclassified_messages(
+    limit: int = Query(default=50, le=200),
+    offset: int = Query(default=0, ge=0),
+):
+    """Return messages that were processed but produced no event."""
+    messages = await db.get_unclassified_messages(limit=limit, offset=offset)
+    total = await db.count_unclassified_messages()
+    return {"messages": messages, "total": total, "limit": limit, "offset": offset}
+
+
+@app.post("/messages/{message_id}/classify")
+async def classify_message(message_id: int, body: dict):
+    """Manually classify a message into a conflict."""
+    conflict_id = body.get("conflict_id")
+    event_type = body.get("event_type", "statement")
+    if conflict_id is None:
+        raise HTTPException(status_code=400, detail="conflict_id is required")
+    event_id = await db.manual_classify_message(message_id, conflict_id, event_type)
+    if event_id is None:
+        raise HTTPException(status_code=404, detail="Message not found")
+    return {"event_id": event_id, "message_id": message_id}
+
+
 @app.get("/sources")
 async def list_sources(
     platform: str | None = None,
